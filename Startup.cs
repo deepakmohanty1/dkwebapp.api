@@ -13,6 +13,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer;
+using System.Net;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 
 
 namespace dkwebapp.api
@@ -32,6 +35,7 @@ namespace dkwebapp.api
             services.AddDbContext<datacontext>(x => x.UseSqlServer(Configuration.GetConnectionString("dktestefcore1")));
             services.AddControllers();
             services.AddCors();
+            services.AddScoped<iauthrepository, authrepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,6 +44,20 @@ namespace dkwebapp.api
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                
+            }
+            else
+            {
+                app.UseExceptionHandler(builder => {
+                      builder.Run(async context => {
+                       context.Response.StatusCode =(int) HttpStatusCode.InternalServerError;
+                        var error= context.Features.Get<IExceptionHandlerFeature>();
+                        if (error != null)
+                            {
+                                await context.Response.WriteAsync("dk custom global message - "+error.Error.Message);
+                            }
+                     });
+                   });
             }
 
             //app.UseHttpsRedirection();

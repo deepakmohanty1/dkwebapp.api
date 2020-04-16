@@ -10,6 +10,7 @@ namespace dkwebapp.api.Data
         }
 
         public DbSet<value> values { get; set; }
+        public DbSet<usermaster> users { get; set; }
        
     }
 }
